@@ -1,0 +1,152 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+char name[100];
+struct dialog 
+{
+  char question[1000];
+  char answer[1000];
+  struct dialog *next;
+};
+struct dialog *head;
+typedef struct dialog dialog;
+void name_input() 
+{
+  int i;
+  scanf("%s",&name[i]);
+}
+void add(char question[], char answer[]) 
+{
+  struct dialog *new_dialog = (dialog *)malloc(sizeof(dialog));
+  struct dialog *iterator = head;
+  struct dialog *last_dialog;
+  while (iterator->next != NULL)
+   {
+    iterator = iterator->next;
+  }
+  last_dialog = iterator;
+  last_dialog->next = new_dialog;
+  strcpy(new_dialog->question, question);
+  strcpy(new_dialog->answer, answer);
+  new_dialog->next = NULL;
+}
+void load() 
+{
+  FILE *fp = fopen("dialogs.txt", "r");
+  if (fp != NULL) 
+  {
+    char log[1000];
+    char question[1000];
+    char answer[1000];
+    while (fgets(log, sizeof log, fp) != NULL) {
+      log[strlen(log) - 1] = '\0';
+      strcpy(question, log);
+      if (fgets(log, sizeof log, fp) != NULL) {
+        log[strlen(log) - 1] = '\0';
+        strcpy(answer, log);
+      }
+      add(question, answer);
+    }
+  } else {
+    printf("\n*Error!!! Could not load dialogs.\n");
+  }
+}
+dialog *find(char question[])
+ {
+  struct dialog *iterator = head;
+  while (iterator != NULL) 
+  {
+   if (strstr(iterator->question, question) != NULL) 
+   {
+      return iterator;
+    }
+   iterator = iterator->next;
+  }
+
+  return NULL;
+}
+
+void write() 
+{
+  struct dialog *iterator = head->next;
+  FILE *fp = fopen("dialogs(1).txt", "w");
+  if (fp != NULL)
+   {
+    while (iterator != NULL) {
+
+      fputs(iterator->question, fp);
+      fputs("\n", fp);
+      fputs(iterator->answer, fp);
+      fputs("\n", fp);
+      iterator = iterator->next;
+    }
+
+  } else 
+  {
+    printf("\n*Error!!! Could not write dialogs to file.*\n");
+  }
+}
+void main() 
+{
+  head=(dialog *)malloc(sizeof(dialog));
+  head->next = NULL;
+  char question[1000];
+  char answer[1000];
+  load();
+  printf("OutRBot: Hello rajagirians, my name is OutRBot.I am here to serve "
+         "you. \n");
+  printf("OutRBot: What is your name?\n");
+
+  printf("YOU: My name is ");
+  name_input();
+
+ /* while (strcmp(name, "OutRBot") == 0) {
+
+    printf("OutRBot: No, my name is OutRBot. Your name is?\n");
+    printf("YOU: ");
+    name_input();
+  }*/
+  printf("OutRBot: Hello, %s!\n", name);
+  printf("OutRBot : You can ask me any information about the Outreach or Life "
+         "projects inside the rajagiri campus.\n");
+
+ while (1) 
+ {
+    printf("YOU: ");
+    fgets(question, sizeof question, stdin);
+    question[strlen(question) - 1] = '\0';
+    if (question=="bye")
+	 {
+        printf("OutRBot: Okay, goodbye %s.\n", name);
+        break;
+      }
+    /*if (strstr(question, "bye") != NULL || strstr(question, "Bye") != NULL) {
+      printf("OutRBot: Okay, goodbye %s.\n", name);
+      break;
+    }*/
+    dialog *log = find(question);
+    if (log != NULL) 
+	{
+      printf("OutRBot: %s\n", log->answer);
+    } 
+	/*else 
+	{
+		printf("OutRBot:Good bye %s",name);
+		break;
+	}*/
+	else 
+	{
+        printf("OutRBot: I don't understand.\n");
+      printf("YOU: ");
+      fgets(answer, sizeof answer, stdin);
+      answer[strlen(answer) - 1] = '\0';
+      if (answer=="bye") {
+        printf("OutRBot: Okay, goodbye %s.\n", name);
+        break;
+      }
+      add(question, answer);
+      write();
+      printf("OutRBot: Now I get it.\n");
+    }
+}
+}
